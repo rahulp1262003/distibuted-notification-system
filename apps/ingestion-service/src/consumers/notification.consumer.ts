@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { publishFanOutEvents } from "../events/publisher";
 
 const redis = new Redis({
   host: "localhost",
@@ -27,6 +28,19 @@ async function consume() {
       console.log(id);
 
       console.log(fields);
+
+      const eventData = Object.fromEntries(
+        Array.from({ length: fields.length / 2 }, (_, i) => [
+          fields[i * 2],
+          fields[i * 2 + 1],
+        ])
+      );
+
+      await publishFanOutEvents(
+        eventData.notificationId,
+        eventData.userId,
+        eventData.eventType
+      );
 
       lastId = id;
     }
