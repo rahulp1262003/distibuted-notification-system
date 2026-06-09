@@ -1,20 +1,23 @@
 import { redis } from "../lib/redis";
+import { NotificationCreatedEvent } from "@repo/event-contracts";
 
-export async function publishNotificationCreatedEvent(
-    notificationId: string,
-    userId: string,
-    eventType: string
-) {
+
+/**
+ * Publishes a notification created event to Redis Stream.
+ *
+ * @param event NotificationCreatedEvent payload
+ */
+export async function publishNotificationCreatedEvent(event: NotificationCreatedEvent) {
     await redis.xadd(
         "notification-stream",
         "*",
         "event",
         "notification.created",
         "notificationId",
-        notificationId,
+        event.notificationId,
         "userId",
-        userId,
+        event.userId,
         "eventType",
-        eventType
+        event.eventType
     );
 }

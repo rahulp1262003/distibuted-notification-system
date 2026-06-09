@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import { publishFanOutEvents } from "../events/publisher";
+import { NotificationCreatedEvent } from "@repo/event-contracts";
 
 const redis = new Redis({
   host: "localhost",
@@ -36,11 +37,13 @@ async function consume() {
         ])
       );
 
-      await publishFanOutEvents(
-        eventData.notificationId,
-        eventData.userId,
-        eventData.eventType
-      );
+      const event: NotificationCreatedEvent = {
+        notificationId: eventData.notificationId,
+        userId: eventData.userId,
+        eventType: eventData.eventType,
+      };
+
+      await publishFanOutEvents(event);
 
       lastId = id;
     }

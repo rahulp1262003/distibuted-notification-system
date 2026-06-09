@@ -12,11 +12,11 @@ export class NotificationService {
   }) {
     const notification = await this.repository.create(data);
 
-    await publishNotificationCreatedEvent(
-      notification.id,
-      notification.userId,
-      notification.eventType
-    );
+    await publishNotificationCreatedEvent({
+      notificationId: notification.id,
+      userId: notification.userId,
+      eventType: notification.eventType,
+    });
 
     return notification;
   }

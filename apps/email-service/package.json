@@ -6,6 +6,7 @@
         "dev": "tsx watch src/server.ts"
     },
     "dependencies": {
+        "@repo/event-contracts": "workspace:*",
         "ioredis": "^5.11.1"
     },
     "devDependencies": {

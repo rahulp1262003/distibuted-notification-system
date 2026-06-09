@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { NotificationCreatedEvent } from "@repo/event-contracts";
 
 const redis = new Redis({
     host: "localhost",
@@ -6,9 +7,7 @@ const redis = new Redis({
 });
 
 export async function publishFanOutEvents(
-    notificationId: string,
-    userId: string,
-    eventType: string
+    event: NotificationCreatedEvent,
 ) {
     await redis.xadd(
         "email-stream",
@@ -16,11 +15,11 @@ export async function publishFanOutEvents(
         "event",
         "notification.email.send",
         "notificationId",
-        notificationId,
+        event.notificationId,
         "userId",
-        userId,
+        event.userId,
         "eventType",
-        eventType
+        event.eventType
     );
 
     await redis.xadd(
@@ -29,11 +28,11 @@ export async function publishFanOutEvents(
         "event",
         "notification.sms.send",
         "notificationId",
-        notificationId,
+        event.notificationId,
         "userId",
-        userId,
+        event.userId,
         "eventType",
-        eventType
+        event.eventType
     );
 
     await redis.xadd(
@@ -42,11 +41,11 @@ export async function publishFanOutEvents(
         "event",
         "notification.push.send",
         "notificationId",
-        notificationId,
+        event.notificationId,
         "userId",
-        userId,
+        event.userId,
         "eventType",
-        eventType
+        event.eventType
     );
 
     console.log("Fan-Out Completed");
