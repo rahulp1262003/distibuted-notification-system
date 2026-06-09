@@ -1,4 +1,7 @@
 import Redis from "ioredis";
+import { NotificationCreatedEvent } from "@repo/event-contracts";
+import { sendEmail } from "../services/email.service";
+import { publishRetryEvent } from "../events/retry.publisher";
 
 const redis = new Redis({
     host: "localhost",
@@ -39,7 +42,6 @@ async function createConsumerGroup(): Promise<void> {
 }
 
 async function consume() {
-    let lastId = "$";
 
     await createConsumerGroup();
 
@@ -48,8 +50,6 @@ async function consume() {
             "GROUP",
             "email-group",
             "consumer-1",
-            "BLOCK",
-            0,
             "COUNT",
             10,
             "STREAMS",
@@ -59,16 +59,53 @@ async function consume() {
 
         if (!response) continue;
 
-        const [, messages] = response[0];
+        const [, messages] = (response as any)[0];
 
         for (const [id, fields] of messages) {
-            console.log("Email Event Received");
+            const eventData = Object.fromEntries(
+                Array.from({ length: fields.length / 2 }, (_, i) => [
+                    fields[i * 2],
+                    fields[i * 2 + 1],
+                ])
+            );
 
-            console.log(id);
+            const event: NotificationCreatedEvent = {
+                notificationId: eventData.notificationId,
+                userId: eventData.userId,
+                eventType: eventData.eventType,
+                retryCount: Number(eventData.retryCount ?? 0),
+            };
 
-            console.log(fields);
+            console.log("Email Event Received", event);
 
-            lastId = id;
+            const success = await sendEmail();
+
+            if (success) {
+                console.log("Email Sent Successfully");
+
+                await redis.xack(
+                    "email-stream",
+                    "email-group",
+                    id
+                );
+
+                console.log("Message Acknowledged");
+            } else {
+                console.log("Email Sending Failed");
+
+                await publishRetryEvent({
+                    ...event,
+                    retryCount: (event.retryCount ?? 0) + 1,
+                });
+
+                await redis.xack(
+                    "email-stream",
+                    "email-group",
+                    id
+                );
+
+                console.log("Failed Message Acknowledged");
+            }
         }
     }
 }
