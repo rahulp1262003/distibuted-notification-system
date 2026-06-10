@@ -1,15 +1,11 @@
-import Redis from "ioredis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
-
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
+import { publishStatusEvent } from "./status.publisher";
+import { redisPublisher } from "../lib/redis-publisher";
 
 export async function publishDLQEvent(
     event: NotificationCreatedEvent
 ): Promise<void> {
-    await redis.xadd(
+    await redisPublisher.xadd(
         "email-dlq",
         "*",
         "notificationId",
@@ -19,8 +15,13 @@ export async function publishDLQEvent(
         "eventType",
         event.eventType,
         "retryCount",
-        String(event.retryCount ?? 0)
+        String(event.retryCount ?? 0),
     );
+
+    await publishStatusEvent({
+        notificationId: event.notificationId,
+        status: "FAILED",
+    });
 
     console.log("Moved To DLQ");
 }

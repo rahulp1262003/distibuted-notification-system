@@ -1,16 +1,9 @@
-import Redis from "ioredis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { sendEmail } from "../services/email.service";
 import { publishRetryEvent } from "../events/retry.publisher";
+import { publishStatusEvent } from "../events/status.publisher";
+import { redisConsumer } from "../lib/redis-consumer";
 
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
-
-redis.on("connect", () => {
-    console.log("Redis Connected");
-});
 
 /**
  * Creates a Redis Consumer Group for email events.
@@ -22,7 +15,7 @@ redis.on("connect", () => {
  */
 async function createConsumerGroup(): Promise<void> {
     try {
-        await redis.xgroup(
+        await redisConsumer.xgroup(
             "CREATE",
             "email-stream",
             "email-group",
@@ -46,19 +39,22 @@ async function consume() {
     await createConsumerGroup();
 
     while (true) {
-        const response = await redis.xreadgroup(
+        console.log("Waiting For Email Events...");
+        const response = await redisConsumer.xreadgroup(
             "GROUP",
             "email-group",
             "consumer-1",
             "COUNT",
             10,
+            "BLOCK",
+            0,
             "STREAMS",
             "email-stream",
             ">"
         );
 
         if (!response) continue;
-
+        console.log("Email Stream Response Received");
         const [, messages] = (response as any)[0];
 
         for (const [id, fields] of messages) {
@@ -77,37 +73,55 @@ async function consume() {
             };
 
             console.log("Email Event Received", event);
+            try {
 
-            const success = await sendEmail();
 
-            if (success) {
-                console.log("Email Sent Successfully");
+                const success = await sendEmail();
 
-                await redis.xack(
-                    "email-stream",
-                    "email-group",
-                    id
-                );
+                if (success) {
+                    console.log("Email Sent Successfully");
 
-                console.log("Message Acknowledged");
-            } else {
-                console.log("Email Sending Failed");
+                    await publishStatusEvent({
+                        notificationId: event.notificationId,
+                        status: "SENT",
+                    });
 
-                await publishRetryEvent({
-                    ...event,
-                    retryCount: (event.retryCount ?? 0) + 1,
-                });
+                    await redisConsumer.xack(
+                        "email-stream",
+                        "email-group",
+                        id
+                    );
 
-                await redis.xack(
-                    "email-stream",
-                    "email-group",
-                    id
-                );
+                    console.log("Message Acknowledged");
+                } else {
+                    console.log("Email Sending Failed");
 
-                console.log("Failed Message Acknowledged");
+                    await publishStatusEvent({
+                        notificationId: event.notificationId,
+                        status: "RETRYING",
+                    });
+                    await publishRetryEvent({
+                        ...event,
+                        retryCount: (event.retryCount ?? 0) + 1,
+                    });
+
+                    await redisConsumer.xack(
+                        "email-stream",
+                        "email-group",
+                        id
+                    );
+
+                    console.log("Failed Message Acknowledged");
+                }
+
+            } catch (error) {
+                console.error("Email Consumer Error:", error);
             }
         }
     }
 }
 
-consume();
+consume().catch((error) => {
+  console.error("EMAIL CONSUMER CRASHED");
+  console.error(error);
+});

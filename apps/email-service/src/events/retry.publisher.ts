@@ -1,10 +1,5 @@
-import Redis from "ioredis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
-
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
+import { redisPublisher } from "../lib/redis-publisher";
 
 /**
  * Publishes failed email events for retry processing.
@@ -12,7 +7,7 @@ const redis = new Redis({
 export async function publishRetryEvent(
     event: NotificationCreatedEvent
 ): Promise<void> {
-    await redis.xadd(
+    await redisPublisher.xadd(
         "retry-email-stream",
         "*",
         "notificationId",

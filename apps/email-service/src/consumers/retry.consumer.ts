@@ -1,19 +1,14 @@
-import Redis from "ioredis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { publishEmailEvent } from "../events/email.publisher";
 import { publishDLQEvent } from "../events/dlq.publisher";
-
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
+import { redisConsumer } from "../lib/redis-consumer";
 
 /**
  * Creates consumer group for retry-email-stream.
  */
 async function createRetryConsumerGroup(): Promise<void> {
     try {
-        await redis.xgroup(
+        await redisConsumer.xgroup(
             "CREATE",
             "retry-email-stream",
             "retry-email-group",
@@ -39,7 +34,7 @@ async function consumeRetries(): Promise<void> {
     await createRetryConsumerGroup();
 
     while (true) {
-        const response = await redis.xreadgroup(
+        const response = await redisConsumer.xreadgroup(
             "GROUP",
             "retry-email-group",
             "retry-consumer-1",
@@ -77,7 +72,7 @@ async function consumeRetries(): Promise<void> {
             if ((event.retryCount ?? 0) >= 3) {
                 await publishDLQEvent(event);
 
-                await redis.xack(
+                await redisConsumer.xack(
                     "retry-email-stream",
                     "retry-email-group",
                     messageId
@@ -91,7 +86,7 @@ async function consumeRetries(): Promise<void> {
             // Re-publish to email-stream
             await publishEmailEvent(event);
 
-            await redis.xack(
+            await redisConsumer.xack(
                 "retry-email-stream",
                 "retry-email-group",
                 messageId
