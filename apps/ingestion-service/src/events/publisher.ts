@@ -1,15 +1,11 @@
 import Redis from "ioredis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
-
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
+import { redisPublisher } from "../lib/redis-publisher";
 
 export async function publishFanOutEvents(
     event: NotificationCreatedEvent,
 ) {
-    await redis.xadd(
+    await redisPublisher.xadd(
         "email-stream",
         "*",
         "event",
@@ -22,7 +18,7 @@ export async function publishFanOutEvents(
         event.eventType
     );
 
-    await redis.xadd(
+    await redisPublisher.xadd(
         "sms-stream",
         "*",
         "event",
@@ -35,7 +31,7 @@ export async function publishFanOutEvents(
         event.eventType
     );
 
-    await redis.xadd(
+    await redisPublisher.xadd(
         "push-stream",
         "*",
         "event",

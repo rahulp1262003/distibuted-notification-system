@@ -6,4 +6,5 @@ export interface NotificationCreatedEvent {
     userId: string;
     eventType: string;
     retryCount?: number;
+    scheduledAt?: number;
 }

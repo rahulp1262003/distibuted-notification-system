@@ -1,4 +1,5 @@
 import app from "./app";
+import "./consumers/notification-status.consumer";
 
 const PORT = 3001;
 

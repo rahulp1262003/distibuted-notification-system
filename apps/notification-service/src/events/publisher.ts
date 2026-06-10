@@ -1,5 +1,5 @@
-import { redis } from "../lib/redis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
+import { redisPublisher } from "../lib/redis-publisher";
 
 
 /**
@@ -8,7 +8,7 @@ import { NotificationCreatedEvent } from "@repo/event-contracts";
  * @param event NotificationCreatedEvent payload
  */
 export async function publishNotificationCreatedEvent(event: NotificationCreatedEvent) {
-    await redis.xadd(
+    await redisPublisher.xadd(
         "notification-stream",
         "*",
         "event",

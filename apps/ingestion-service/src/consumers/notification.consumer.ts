@@ -1,17 +1,12 @@
-import Redis from "ioredis";
 import { publishFanOutEvents } from "../events/publisher";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
-
-const redis = new Redis({
-  host: "localhost",
-  port: 6379,
-});
+import { redisConsumer } from "../lib/redis-consumer";
 
 async function consume() {
   let lastId = "$";
 
   while (true) {
-    const response = await redis.xread(
+    const response = await redisConsumer.xread(
       "BLOCK",
       0,
       "STREAMS",
