@@ -33,6 +33,7 @@ async function consume() {
       );
 
       const event: NotificationCreatedEvent = {
+        eventId: eventData.eventId,
         notificationId: eventData.notificationId,
         userId: eventData.userId,
         eventType: eventData.eventType,

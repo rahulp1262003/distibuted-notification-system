@@ -8,6 +8,8 @@ export async function publishFanOutEvents(
     await redisPublisher.xadd(
         "email-stream",
         "*",
+        "eventId",
+        event.eventId,
         "event",
         "notification.email.send",
         "notificationId",
@@ -21,6 +23,8 @@ export async function publishFanOutEvents(
     await redisPublisher.xadd(
         "sms-stream",
         "*",
+        "eventId",
+        event.eventId,
         "event",
         "notification.sms.send",
         "notificationId",
@@ -34,6 +38,8 @@ export async function publishFanOutEvents(
     await redisPublisher.xadd(
         "push-stream",
         "*",
+        "eventId",
+        event.eventId,
         "event",
         "notification.push.send",
         "notificationId",

@@ -20,11 +20,19 @@ enum NotificationStatus {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
+  id        String             @id @default(uuid())
   userId    String
   eventType String
   payload   Json
   status    NotificationStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @default(now()) @updatedAt
+}
+
+model ProcessedEvent {
+  id String @id @default(uuid())
+
+  eventId String @unique
+
+  processedAt DateTime @default(now())
 }

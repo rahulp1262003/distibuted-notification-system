@@ -1,6 +1,7 @@
 import { NotificationRepository } from "../repositories/notification.repository";
 import { publishNotificationCreatedEvent } from "../events/publisher";
 import { Prisma } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 export class NotificationService {
   private repository = new NotificationRepository();
@@ -13,6 +14,7 @@ export class NotificationService {
     const notification = await this.repository.create(data);
 
     await publishNotificationCreatedEvent({
+      eventId: randomUUID(),
       notificationId: notification.id,
       userId: notification.userId,
       eventType: notification.eventType,

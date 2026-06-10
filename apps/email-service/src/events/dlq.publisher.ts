@@ -8,6 +8,8 @@ export async function publishDLQEvent(
     await redisPublisher.xadd(
         "email-dlq",
         "*",
+        "eventId",
+        event.eventId,
         "notificationId",
         event.notificationId,
         "userId",

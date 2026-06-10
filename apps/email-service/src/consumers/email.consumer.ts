@@ -3,7 +3,7 @@ import { sendEmail } from "../services/email.service";
 import { publishRetryEvent } from "../events/retry.publisher";
 import { publishStatusEvent } from "../events/status.publisher";
 import { redisConsumer } from "../lib/redis-consumer";
-
+import { redisPublisher } from "../lib/redis-publisher";
 
 /**
  * Creates a Redis Consumer Group for email events.
@@ -64,13 +64,42 @@ async function consume() {
                     fields[i * 2 + 1],
                 ])
             );
-
+            
             const event: NotificationCreatedEvent = {
+                eventId: eventData.eventId,
                 notificationId: eventData.notificationId,
                 userId: eventData.userId,
                 eventType: eventData.eventType,
                 retryCount: Number(eventData.retryCount ?? 0),
             };
+
+            /**
+            * Idempotency Check
+            *
+            * Prevents duplicate processing
+            * of the same event.
+            */
+            const processed = await redisPublisher.set(
+                `processed:${event.eventId}`,
+                "true",
+                "NX",
+                "EX",
+                86400 // 24 hours
+            );
+
+            if (!processed) {
+                console.log(
+                    `Duplicate Event Ignored: ${event.eventId}`
+                );
+
+                await redisConsumer.xack(
+                    "email-stream",
+                    "email-group",
+                    id
+                );
+
+                continue;
+            }
 
             console.log("Email Event Received", event);
             try {
@@ -122,6 +151,6 @@ async function consume() {
 }
 
 consume().catch((error) => {
-  console.error("EMAIL CONSUMER CRASHED");
-  console.error(error);
+    console.error("EMAIL CONSUMER CRASHED");
+    console.error(error);
 });

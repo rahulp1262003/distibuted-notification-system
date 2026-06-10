@@ -10,6 +10,8 @@ export async function publishEmailEvent(
   await redisPublisher.xadd(
     "email-stream",
     "*",
+    "eventId",
+    event.eventId,
     "event",
     "notification.email.send",
     "notificationId",

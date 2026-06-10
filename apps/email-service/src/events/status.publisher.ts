@@ -6,8 +6,6 @@ export async function publishStatusEvent(
     event: NotificationStatusEvent
 ): Promise<void> {
 
-    console.log("Before Status Publish");
-
     await redisPublisher.xadd(
         "notification-status-stream",
         "*",
@@ -16,8 +14,6 @@ export async function publishStatusEvent(
         "status",
         event.status
     );
-
-    console.log("After Status Publish");
 
     console.log(
         `Status Event Published: ${event.status}`
