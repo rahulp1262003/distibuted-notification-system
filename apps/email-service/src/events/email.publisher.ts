@@ -1,5 +1,6 @@
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { redisPublisher } from "../lib/redis-publisher";
+import { logger } from "@repo/logger";
 
 /**
  * Re-publishes email event for retry.
@@ -24,5 +25,5 @@ export async function publishEmailEvent(
     String(event.retryCount ?? 0)
   );
 
-  console.log("Republished To Email Stream");
+  logger.stream("Republished To Email Stream");
 }

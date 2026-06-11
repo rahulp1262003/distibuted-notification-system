@@ -1,6 +1,7 @@
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { publishStatusEvent } from "./status.publisher";
 import { redisPublisher } from "../lib/redis-publisher";
+import { logger } from "@repo/logger";
 
 export async function publishDLQEvent(
     event: NotificationCreatedEvent
@@ -25,5 +26,5 @@ export async function publishDLQEvent(
         status: "FAILED",
     });
 
-    console.log("Moved To DLQ");
+    logger.info("Moved To DLQ");
 }

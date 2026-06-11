@@ -2,6 +2,7 @@
 import { NotificationStatus } from "@prisma/client";
 import { NotificationRepository } from "../repositories/notification.repository";
 import { redisConsumer } from "../lib/redis-consumer";
+import { logger } from "@repo/logger";
 
 const repository = new NotificationRepository();
 
@@ -15,10 +16,10 @@ async function createConsumerGroup() {
             "MKSTREAM"
         );
 
-        console.log("Notification Status Group Created");
+        logger.info("Notification Status Group Created");
     } catch (error: any) {
         if (error.message.includes("BUSYGROUP")) {
-            console.log("Notification Status Group Already Exists");
+            logger.info("Notification Status Group Already Exists");
             return;
         }
 
@@ -60,7 +61,7 @@ async function consume() {
                 eventData.status as NotificationStatus
             );
 
-            console.log(
+            logger.event(
                 `Notification ${eventData.notificationId} updated to ${eventData.status}`
             );
 

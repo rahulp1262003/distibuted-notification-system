@@ -7,6 +7,7 @@
     },
     "dependencies": {
         "@repo/event-contracts": "workspace:*",
+        "@repo/logger": "workspace:*",
         "ioredis": "^5.11.1"
     },
     "devDependencies": {

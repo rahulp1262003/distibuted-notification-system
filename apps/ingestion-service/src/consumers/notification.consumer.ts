@@ -1,6 +1,7 @@
 import { publishFanOutEvents } from "../events/publisher";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { redisConsumer } from "../lib/redis-consumer";
+import { logger } from "@repo/logger";
 
 async function consume() {
   let lastId = "$";
@@ -19,11 +20,11 @@ async function consume() {
     const [, messages] = response[0];
 
     for (const [id, fields] of messages) {
-      console.log("Received Event:");
+      logger.event("Received Event:");
 
-      console.log(id);
+      logger.event(id);
 
-      console.log(fields);
+      logger.event(JSON.stringify(fields));
 
       const eventData = Object.fromEntries(
         Array.from({ length: fields.length / 2 }, (_, i) => [

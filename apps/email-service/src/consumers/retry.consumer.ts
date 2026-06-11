@@ -2,7 +2,7 @@ import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { publishEmailEvent } from "../events/email.publisher";
 import { publishDLQEvent } from "../events/dlq.publisher";
 import { redisConsumer } from "../lib/redis-consumer";
-
+import { logger } from "@repo/logger";
 /**
  * Creates consumer group for retry-email-stream.
  */
@@ -16,10 +16,10 @@ async function createRetryConsumerGroup(): Promise<void> {
             "MKSTREAM"
         );
 
-        console.log("Retry Consumer Group Created");
+        logger.info("Retry Consumer Group Created");
     } catch (error: any) {
         if (error.message.includes("BUSYGROUP")) {
-            console.log("Retry Consumer Group Already Exists");
+            logger.info("Retry Consumer Group Already Exists");
             return;
         }
 
@@ -65,9 +65,10 @@ async function consumeRetries(): Promise<void> {
                 userId: eventData.userId,
                 eventType: eventData.eventType,
                 retryCount: Number(eventData.retryCount ?? 0),
+                scheduledAt: Number(eventData.scheduledAt ?? 0),
             };
 
-            console.log("Retry Event Received", event);
+            logger.info("Retry Event Received", event);
 
             // Max 3 retries
             if ((event.retryCount ?? 0) >= 3) {
@@ -79,9 +80,22 @@ async function consumeRetries(): Promise<void> {
                     messageId
                 );
 
-                console.log("Moved To DLQ");
+                logger.info("Moved To DLQ");
 
                 continue;
+            }
+
+            const waitTime =
+                (event.scheduledAt ?? 0) - Date.now();
+
+            if (waitTime > 0) {
+                logger.info(
+                    `Waiting ${Math.ceil(waitTime / 1000)}s before retry`
+                );
+
+                await new Promise((resolve) =>
+                    setTimeout(resolve, waitTime)
+                );
             }
 
             // Re-publish to email-stream
@@ -93,7 +107,7 @@ async function consumeRetries(): Promise<void> {
                 messageId
             );
 
-            console.log(
+            logger.event(
                 `Republished For Retry #${event.retryCount}`
             );
         }

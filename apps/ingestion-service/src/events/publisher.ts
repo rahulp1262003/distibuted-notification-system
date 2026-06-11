@@ -1,6 +1,7 @@
 import Redis from "ioredis";
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { redisPublisher } from "../lib/redis-publisher";
+import { logger } from "@repo/logger";
 
 export async function publishFanOutEvents(
     event: NotificationCreatedEvent,
@@ -50,5 +51,5 @@ export async function publishFanOutEvents(
         event.eventType
     );
 
-    console.log("Fan-Out Completed");
+    logger.success("Fan-Out Completed");
 }

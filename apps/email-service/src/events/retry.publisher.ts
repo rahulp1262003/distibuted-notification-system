@@ -1,6 +1,7 @@
 import { NotificationCreatedEvent } from "@repo/event-contracts";
 import { redisPublisher } from "../lib/redis-publisher";
 import { randomUUID } from "crypto";
+import { logger } from "@repo/logger";
 
 
 /**
@@ -9,10 +10,21 @@ import { randomUUID } from "crypto";
 export async function publishRetryEvent(
     event: NotificationCreatedEvent
 ): Promise<void> {
+    const retryCount = event.retryCount ?? 0;
+
+    const delaySeconds = Math.pow(2, retryCount);
+
     const retryEvent: NotificationCreatedEvent = {
         ...event,
         eventId: randomUUID(),
+        scheduledAt:
+            Date.now() + delaySeconds * 1000,
     };
+
+    logger.info(
+        `Retry Scheduled In ${delaySeconds}s`
+    );
+
     await redisPublisher.xadd(
         "retry-email-stream",
         "*",
@@ -25,8 +37,10 @@ export async function publishRetryEvent(
         "eventType",
         retryEvent.eventType,
         "retryCount",
-        String(retryEvent.retryCount ?? 0)
+        String(retryEvent.retryCount ?? 0),
+        "scheduledAt",
+        String(retryEvent.scheduledAt)
     );
 
-    console.log("Retry Event Published");
+    logger.event("Retry Event Published");
 }

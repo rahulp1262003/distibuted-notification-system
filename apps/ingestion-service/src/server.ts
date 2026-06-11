@@ -1,3 +1,4 @@
+import { logger } from "@repo/logger";
 import "./consumers/notification.consumer";
 
-console.log("Ingestion Service Running");
+logger.info("Ingestion Service Running");

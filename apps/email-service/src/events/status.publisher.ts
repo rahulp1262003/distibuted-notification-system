@@ -1,5 +1,6 @@
 import { NotificationStatusEvent } from "@repo/event-contracts";
 import { redisPublisher } from "../lib/redis-publisher";
+import { logger } from "@repo/logger";
 
 
 export async function publishStatusEvent(
@@ -15,7 +16,7 @@ export async function publishStatusEvent(
         event.status
     );
 
-    console.log(
+    logger.event(
         `Status Event Published: ${event.status}`
     );
 }

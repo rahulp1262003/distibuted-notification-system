@@ -4,6 +4,7 @@ import { publishRetryEvent } from "../events/retry.publisher";
 import { publishStatusEvent } from "../events/status.publisher";
 import { redisConsumer } from "../lib/redis-consumer";
 import { redisPublisher } from "../lib/redis-publisher";
+import { logger } from "@repo/logger";
 
 /**
  * Creates a Redis Consumer Group for email events.
@@ -23,10 +24,10 @@ async function createConsumerGroup(): Promise<void> {
             "MKSTREAM"
         );
 
-        console.log("Consumer Group Created");
+        logger.info("Consumer Group Created");
     } catch (error: any) {
         if (error.message.includes("BUSYGROUP")) {
-            console.log("Consumer Group Already Exists");
+            logger.info("Consumer Group Already Exists");
             return;
         }
 
@@ -39,7 +40,7 @@ async function consume() {
     await createConsumerGroup();
 
     while (true) {
-        console.log("Waiting For Email Events...");
+        logger.event("Waiting For Email Events...");
         const response = await redisConsumer.xreadgroup(
             "GROUP",
             "email-group",
@@ -54,7 +55,7 @@ async function consume() {
         );
 
         if (!response) continue;
-        console.log("Email Stream Response Received");
+        logger.stream("Email Stream Response Received");
         const [, messages] = (response as any)[0];
 
         for (const [id, fields] of messages) {
@@ -64,7 +65,7 @@ async function consume() {
                     fields[i * 2 + 1],
                 ])
             );
-            
+
             const event: NotificationCreatedEvent = {
                 eventId: eventData.eventId,
                 notificationId: eventData.notificationId,
@@ -88,7 +89,7 @@ async function consume() {
             );
 
             if (!processed) {
-                console.log(
+                logger.info(
                     `Duplicate Event Ignored: ${event.eventId}`
                 );
 
@@ -101,14 +102,14 @@ async function consume() {
                 continue;
             }
 
-            console.log("Email Event Received", event);
+            logger.stream("Email Event Received", event);
             try {
 
 
                 const success = await sendEmail();
 
                 if (success) {
-                    console.log("Email Sent Successfully");
+                    logger.success("Email Sent Successfully");
 
                     await publishStatusEvent({
                         notificationId: event.notificationId,
@@ -121,9 +122,9 @@ async function consume() {
                         id
                     );
 
-                    console.log("Message Acknowledged");
+                    logger.info("Message Acknowledged");
                 } else {
-                    console.log("Email Sending Failed");
+                    logger.error("Email Sending Failed");
 
                     await publishStatusEvent({
                         notificationId: event.notificationId,
@@ -140,17 +141,17 @@ async function consume() {
                         id
                     );
 
-                    console.log("Failed Message Acknowledged");
+                    logger.error("Failed Message Acknowledged");
                 }
 
             } catch (error) {
-                console.error("Email Consumer Error:", error);
+                logger.error("Email Consumer Error:", error);
             }
         }
     }
 }
 
 consume().catch((error) => {
-    console.error("EMAIL CONSUMER CRASHED");
-    console.error(error);
+    logger.error("EMAIL CONSUMER CRASHED");
+    logger.error(error);
 });
