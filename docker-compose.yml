@@ -16,7 +16,20 @@ services:
     image: redis:7
     container_name: notification-redis
     restart: unless-stopped
-    ports:
+    ports:  
       - "6379:6379"
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: notification-service
+    env_file:
+      - .env.docker
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3001:3001"
 volumes:
   postgres_data:

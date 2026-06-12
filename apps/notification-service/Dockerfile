@@ -11,3 +11,7 @@ RUN pnpm install
 RUN pnpm --filter notification-service exec prisma generate
 
 RUN pnpm build
+
+WORKDIR /app/apps/notification-service
+
+CMD ["node", "dist/server.js"]
