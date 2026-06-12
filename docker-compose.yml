@@ -16,7 +16,7 @@ services:
     image: redis:7
     container_name: notification-redis
     restart: unless-stopped
-    ports:  
+    ports:
       - "6379:6379"
 
   notification-service:
@@ -31,5 +31,18 @@ services:
       - redis
     ports:
       - "3001:3001"
+
+  ingestion-service:
+    build:
+      context: .
+      dockerfile: apps/ingestion-service/Dockerfile
+    container_name: ingestion-service
+    env_file:
+      - .env.docker
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+    
 volumes:
   postgres_data:
