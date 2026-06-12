@@ -1,7 +1,11 @@
 {
     "name": "@repo/logger",
     "version": "1.0.0",
-    "main": "./src/index.ts",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
     "dependencies": {
         "chalk": "^5.6.2"
     }

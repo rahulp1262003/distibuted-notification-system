@@ -80,12 +80,20 @@ async function consume() {
             * Prevents duplicate processing
             * of the same event.
             */
-            const processed = await redisPublisher.set(
+
+            const key = `processed:${event.eventId}`;
+
+            /* const processed = await redisPublisher.set(
                 `processed:${event.eventId}`,
                 "true",
                 "NX",
                 "EX",
                 86400 // 24 hours
+            ); */
+
+            const processed = await redisPublisher.setnx(
+                key,
+                "true"
             );
 
             if (!processed) {

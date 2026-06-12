@@ -1,8 +1,13 @@
+
+import dotenv from "dotenv";
+dotenv.config();
+
 import app from "./app";
 import "./consumers/notification-status.consumer";
+import { logger } from "@repo/logger";
 
-const PORT = 3001;
-
+const PORT = Number(process.env.PORT) || 3001;
+logger.info("PORT:", process.env.PORT);
 app.listen(PORT, () => {
-    console.log(`Server running on port http://localhost:${PORT}`);
+    logger.info(`Server running on port http://localhost:${PORT}`);
 });

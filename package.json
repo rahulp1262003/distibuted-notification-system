@@ -4,7 +4,8 @@
   "private": true,
   "description": "Event-driven distributed notification system built with Node.js, Redis Streams and PostgreSQL",
   "scripts": {
-    "dev:notification": "pnpm --filter notification-service dev"
+    "dev:notification": "pnpm --filter notification-service dev",
+    "build": "pnpm -r build"
   },
   "keywords": [],
   "author": "",

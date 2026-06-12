@@ -1,0 +1,1 @@
+import "./consumers/notification.consumer";

@@ -3,11 +3,14 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "tsx watch src/server.ts"
+        "dev": "tsx watch src/server.ts",
+        "build": "tsc",
+        "start": "node dist/server.js"
     },
     "dependencies": {
         "@repo/event-contracts": "workspace:*",
         "@repo/logger": "workspace:*",
+        "dotenv": "^17.4.2",
         "ioredis": "^5.11.1"
     },
     "devDependencies": {
