@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1783416278125" clover="3.2.0">
+  <project timestamp="1783416278126" name="All files">
+    <metrics statements="28" coveredstatements="22" conditionals="6" coveredconditionals="5" methods="6" coveredmethods="3" elements="40" coveredelements="30" complexity="0" loc="28" ncloc="28" packages="3" files="4" classes="4"/>
+    <package name="consumers">
+      <metrics statements="20" coveredstatements="16" conditionals="6" coveredconditionals="5" methods="3" coveredmethods="2"/>
+      <file name="notification.consumer.ts" path="D:\distibuted-notification-system\apps\ingestion-service\src\consumers\notification.consumer.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+      </file>
+      <file name="notification.stream.consumer.ts" path="D:\distibuted-notification-system\apps\ingestion-service\src\consumers\notification.stream.consumer.ts">
+        <metrics statements="17" coveredstatements="13" conditionals="6" coveredconditionals="5" methods="2" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="15" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="19" count="3" type="stmt"/>
+        <line num="21" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="27" count="3" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="events">
+      <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="fanout.publisher.ts" path="D:\distibuted-notification-system\apps\ingestion-service\src\events\fanout.publisher.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="lib">
+      <metrics statements="5" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
+      <file name="stream.ts" path="D:\distibuted-notification-system\apps\ingestion-service\src\lib\stream.ts">
+        <metrics statements="5" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

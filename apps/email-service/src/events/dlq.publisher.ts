@@ -1,14 +1,26 @@
-import Redis from "ioredis";
-import { NotificationCreatedEvent } from "@repo/event-contracts";
+import { redis } from "../lib/redis";
 
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
+/**
+ * Represents a Dead Letter Queue event.
+ */
+export interface DLQEvent {
+    notificationId: string;
+    userId: string;
+    eventType: string;
+    channel: "EMAIL";
+    retryCount: number;
+}
 
+/**
+ * Publishes a failed notification
+ * to the Dead Letter Queue.
+ *
+ * @param event DLQ event payload.
+ */
 export async function publishDLQEvent(
-    event: NotificationCreatedEvent
+    event: DLQEvent
 ): Promise<void> {
+
     await redis.xadd(
         "email-dlq",
         "*",
@@ -18,9 +30,10 @@ export async function publishDLQEvent(
         event.userId,
         "eventType",
         event.eventType,
+        "channel",
+        event.channel,
         "retryCount",
-        String(event.retryCount ?? 0)
+        event.retryCount.toString()
     );
 
-    console.log("Moved To DLQ");
 }

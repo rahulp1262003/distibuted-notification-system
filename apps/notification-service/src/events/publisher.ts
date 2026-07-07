@@ -1,6 +1,12 @@
 import { redis } from "../lib/redis";
-import { NotificationCreatedEvent } from "@repo/event-contracts";
-
+/**
+ * Notification created event.
+ */
+export interface NotificationCreatedEvent {
+    notificationId: string;
+    userId: string;
+    eventType: string;
+}
 
 /**
  * Publishes a notification created event to Redis Stream.

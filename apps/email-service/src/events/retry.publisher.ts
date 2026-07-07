@@ -1,19 +1,27 @@
-import Redis from "ioredis";
-import { NotificationCreatedEvent } from "@repo/event-contracts";
-
-const redis = new Redis({
-    host: "localhost",
-    port: 6379,
-});
+import { redis } from "../lib/redis";
 
 /**
- * Publishes failed email events for retry processing.
+ * Represents a retry event.
+ */
+export interface RetryEvent {
+    notificationId: string;
+    userId: string;
+    eventType: string;
+    channel: "EMAIL";
+    retryCount: number;
+}
+
+/**
+ * Publishes a retry event to the retry stream.
+ *
+ * @param event Retry event payload.
  */
 export async function publishRetryEvent(
-    event: NotificationCreatedEvent
+    event: RetryEvent
 ): Promise<void> {
+
     await redis.xadd(
-        "retry-email-stream",
+        "retry-stream",
         "*",
         "notificationId",
         event.notificationId,
@@ -21,9 +29,10 @@ export async function publishRetryEvent(
         event.userId,
         "eventType",
         event.eventType,
+        "channel",
+        event.channel,
         "retryCount",
-        String(event.retryCount ?? 0)
+        event.retryCount.toString()
     );
 
-    console.log("Retry Event Published");
 }
