@@ -1,46 +1,24 @@
+import { ackMessage, readStream } from "@repo/core";
 import { redis } from "./redis";
 
 /**
- * Reads a single message from a Redis Stream consumer group.
+ * Reads messages from the email stream.
  */
-export async function readStream(
+export async function readEmailStream(
     stream: string,
     group: string,
     consumer: string
 ) {
-
-    return redis.xreadgroup(
-        "GROUP",
-        group,
-        consumer,
-        "COUNT",
-        1,
-        "BLOCK",
-        0,
-        "STREAMS",
-        stream,
-        ">"
-    );
-
+    return readStream(redis, stream, group, consumer);
 }
 
 /**
- * Acknowledges a processed Redis Stream message.
- *
- * @param stream Redis Stream name.
- * @param group Consumer group name.
- * @param messageId Redis Stream message id.
+ * Acknowledges an email message.
  */
-export async function ackMessage(
+export async function ackEmailMessage(
     stream: string,
     group: string,
-    messageId: string
-): Promise<number> {
-
-    return redis.xack(
-        stream,
-        group,
-        messageId
-    );
-
+    id: string
+) {
+    return ackMessage(redis, stream, group, id);
 }

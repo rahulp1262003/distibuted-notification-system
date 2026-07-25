@@ -1,15 +1,5 @@
 import { redis } from "../lib/redis";
-
-/**
- * Represents a Dead Letter Queue event.
- */
-export interface DLQEvent {
-    notificationId: string;
-    userId: string;
-    eventType: string;
-    channel: "EMAIL";
-    retryCount: number;
-}
+import { DLQEvent } from "@repo/core";
 
 /**
  * Publishes a failed notification

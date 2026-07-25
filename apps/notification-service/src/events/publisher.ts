@@ -1,12 +1,5 @@
 import { redis } from "../lib/redis";
-/**
- * Notification created event.
- */
-export interface NotificationCreatedEvent {
-    notificationId: string;
-    userId: string;
-    eventType: string;
-}
+import { NotificationCreatedEvent } from "@repo/core";
 
 /**
  * Publishes a notification created event to Redis Stream.

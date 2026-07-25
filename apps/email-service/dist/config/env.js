@@ -6,6 +6,7 @@ const zod_1 = require("zod");
  * Environment variables required by Email Service.
  */
 const envSchema = zod_1.z.object({
+    PORT: zod_1.z.coerce.number().default(3002),
     REDIS_HOST: zod_1.z
         .string()
         .default("localhost"),

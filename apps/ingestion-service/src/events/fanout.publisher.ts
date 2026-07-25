@@ -1,5 +1,5 @@
 import { redis } from "../lib/redis";
-
+import { FanOutEvent } from "@repo/core";
 /**
  * Publishes notification events
  * to all downstream channels.
@@ -7,11 +7,7 @@ import { redis } from "../lib/redis";
  * @param event Notification event payload.
  */
 export async function publishFanOutEvents(
-    event: {
-        notificationId: string;
-        userId: string;
-        eventType: string;
-    }
+    event: FanOutEvent
 ): Promise<void> {
 
     await Promise.all([

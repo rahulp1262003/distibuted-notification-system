@@ -1,38 +1,20 @@
 import { redis } from "./redis";
-
+import { createConsumerGroup as createGroup } from "@repo/core";
 /**
  * Creates the Email Service consumer group if it does not already exist.
  */
 export async function createConsumerGroup(): Promise<void> {
 
-    try {
+    const created = await createGroup(
+        redis,
+        "email-stream",
+        "email-group"
+    );
 
-        await redis.xgroup(
-            "CREATE",
-            "email-stream",
-            "email-group",
-            "0",
-            "MKSTREAM"
-        );
-
+    if (created) {
         console.log("Email Consumer Group Created");
-
-    } catch (error) {
-
-        /**
-         * Ignore BUSYGROUP errors because the group
-         * already exists.
-         */
-        if (
-            error instanceof Error &&
-            error.message.includes("BUSYGROUP")
-        ) {
-            console.log("Email Consumer Group Already Exists");
-            return;
-        }
-
-        throw error;
-
+    } else {
+        console.log("Email Consumer Group Already Exists");
     }
 
 }

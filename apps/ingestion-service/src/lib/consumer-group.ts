@@ -1,35 +1,21 @@
 import { redis } from "./redis";
-
+import { createConsumerGroup as createGroup } from "@repo/core";
 /**
  * Creates the notification consumer group
  * if it does not already exist.
  */
 export async function createConsumerGroup(): Promise<void> {
 
-    try {
+    const created = await createGroup(
+        redis,
+        "notification-stream",
+        "notification-group",
+    );
 
-        await redis.xgroup(
-            "CREATE",
-            "notification-stream",
-            "notification-group",
-            "0",
-            "MKSTREAM"
-        );
-
+    if (created) {
         console.log("Notification Consumer Group Created");
-
-    } catch (error) {
-
-        if (
-            error instanceof Error &&
-            error.message.includes("BUSYGROUP")
-        ) {
-            console.log("Notification Consumer Group Already Exists");
-            return;
-        }
-
-        throw error;
-
+    } else {
+        console.log("Notification Consumer Group Already Exists");
     }
 
 }

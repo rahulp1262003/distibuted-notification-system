@@ -1,6 +1,6 @@
 import { FakeEmailProvider } from "../providers/fake-email.provider";
 import { processEmailEvent } from "./email.consumer";
-import { readStream, ackMessage } from "../lib/stream";
+import { readEmailStream, ackEmailMessage } from "../lib/stream";
 import { publishRetryEvent } from "../events/retry.publisher";
 import { canRetry } from "../utils/retry";
 import { publishDLQEvent } from "../events/dlq.publisher";
@@ -13,7 +13,7 @@ const provider = new FakeEmailProvider();
  */
 export async function pollOnce(): Promise<void> {
 
-    const response = await readStream(
+    const response = await readEmailStream(
         "email-stream",
         "email-group",
         "email-consumer-1"
@@ -72,7 +72,7 @@ export async function pollOnce(): Promise<void> {
 
         }
 
-        await ackMessage(
+        await ackEmailMessage(
             "email-stream",
             "email-group",
             messageId

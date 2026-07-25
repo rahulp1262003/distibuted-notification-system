@@ -14,6 +14,12 @@ export async function processNotificationEvent(
     }
 ): Promise<void> {
 
+    console.log("Notification Event Received : ", event);
+
     await publishFanOutEvents(event);
+
+    console.log(
+        `[INGESTION] Fan-out completed for ${event.notificationId}`
+    );
 
 }

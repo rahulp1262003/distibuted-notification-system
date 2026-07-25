@@ -1,15 +1,5 @@
 import { redis } from "../lib/redis";
-
-/**
- * Represents a retry event.
- */
-export interface RetryEvent {
-    notificationId: string;
-    userId: string;
-    eventType: string;
-    channel: "EMAIL";
-    retryCount: number;
-}
+import { RetryEvent } from "@repo/core";
 
 /**
  * Publishes a retry event to the retry stream.
