@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { publishNotificationCreatedEvent } from "../events/publisher";
 import { NotificationRepository } from "../repositories/notification.repository";
+import { logger } from "../lib/logger";
 
 /**
  * Handles notification business logic.
@@ -50,7 +51,17 @@ export class NotificationService {
             notificationId: notification.id,
             userId: notification.userId,
             eventType: notification.eventType,
+            payload: notification.payload as Record<string, unknown>,
         });
+
+        logger.info(
+            {
+                notificationId: notification.id,
+                userId: notification.userId,
+                eventType: notification.eventType,
+            },
+            "Notification created"
+        );
 
         // Return the created notification.
         return notification;

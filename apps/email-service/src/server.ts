@@ -2,12 +2,13 @@ import app from "./app";
 import { env } from "./config/env";
 import { startEmailConsumer } from "./consumers/email.stream.consumer";
 import { createConsumerGroup } from "./lib/consumer-group";
+import { logger } from "./lib/logger";
 
 /**
  * Starts the HTTP server.
  */
 app.listen(env.PORT, () => {
-    console.log(
+    logger.info(
         `Email Service running on http://localhost:${env.PORT}`
     );
 });
@@ -28,10 +29,7 @@ async function bootstrap(): Promise<void> {
 
     } catch (error) {
 
-        console.error(
-            "Failed to start Email Service",
-            error
-        );
+        logger.error(`Failed to start Email Service : ${error}`);
 
         process.exit(1);
 

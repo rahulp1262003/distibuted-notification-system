@@ -5,6 +5,7 @@ import { publishRetryEvent } from "../events/retry.publisher";
 import { canRetry } from "../utils/retry";
 import { publishDLQEvent } from "../events/dlq.publisher";
 import { getNextRetryCount } from "../utils/retry";
+import { logger } from "../lib/logger";
 
 const provider = new FakeEmailProvider();
 
@@ -87,7 +88,7 @@ export async function pollOnce(): Promise<void> {
  */
 export async function startEmailConsumer(): Promise<void> {
 
-    console.log("[EMAIL] Consumer Started");
+    logger.info("[EMAIL] Consumer Started");
 
     while (true) {
         await pollOnce();

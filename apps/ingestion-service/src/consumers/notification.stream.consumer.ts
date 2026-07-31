@@ -1,5 +1,6 @@
 import { processNotificationEvent } from "./notification.consumer";
 import { ackMessage, readStream } from "../lib/stream";
+import { logger } from "../lib/logger";
 
 /**
  * Polls the notification stream once.
@@ -47,7 +48,7 @@ export async function pollOnce(): Promise<void> {
  */
 export async function startNotificationConsumer(): Promise<void> {
 
-    console.log("[INGESTION] Consumer Started");
+    logger.info("[INGESTION] Consumer Started");
 
     while (true) {
         await pollOnce();

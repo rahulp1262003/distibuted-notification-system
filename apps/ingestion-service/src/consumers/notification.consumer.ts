@@ -1,4 +1,5 @@
 import { publishFanOutEvents } from "../events/fanout.publisher";
+import { logger } from "../lib/logger";
 
 /**
  * Processes a notification event received
@@ -14,11 +15,11 @@ export async function processNotificationEvent(
     }
 ): Promise<void> {
 
-    console.log("Notification Event Received : ", event);
+    logger.info(`Notification Event Received : ${JSON.stringify(event)}`);
 
     await publishFanOutEvents(event);
 
-    console.log(
+    logger.info(
         `[INGESTION] Fan-out completed for ${event.notificationId}`
     );
 

@@ -1,3 +1,4 @@
+import { logger } from "../lib/logger";
 import { redis } from "../lib/redis";
 import { NotificationCreatedEvent } from "@repo/core";
 
@@ -18,5 +19,14 @@ export async function publishNotificationCreatedEvent(event: NotificationCreated
         event.userId,
         "eventType",
         event.eventType
+    );
+
+    logger.info(
+        {
+            notificationId: event.notificationId,
+            userId: event.userId,
+            eventType: event.eventType,
+        },
+        "Notification event published"
     );
 }

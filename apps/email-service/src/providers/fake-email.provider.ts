@@ -1,3 +1,4 @@
+import { logger } from "../lib/logger";
 import { EmailMessage, EmailProvider } from "./email.provider";
 
 /**
@@ -10,8 +11,8 @@ export class FakeEmailProvider implements EmailProvider {
      */
     async send(message: EmailMessage): Promise<void> {
 
-        console.log("Email Sent");
-        console.log(message);
+        logger.info("Email Sent");
+        logger.info(JSON.stringify(message));
 
     }
 

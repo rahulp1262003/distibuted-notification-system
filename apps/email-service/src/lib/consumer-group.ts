@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import { redis } from "./redis";
 import { createConsumerGroup as createGroup } from "@repo/core";
 /**
@@ -12,9 +13,9 @@ export async function createConsumerGroup(): Promise<void> {
     );
 
     if (created) {
-        console.log("Email Consumer Group Created");
+        logger.info("Email Consumer Group Created");
     } else {
-        console.log("Email Consumer Group Already Exists");
+        logger.warn("Email Consumer Group Already Exists");
     }
 
 }

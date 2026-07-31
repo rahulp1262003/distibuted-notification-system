@@ -11,7 +11,7 @@ export interface BaseNotificationEvent {
  * Event published when a notification is created.
  */
 export interface NotificationCreatedEvent extends BaseNotificationEvent {
-    eventId: string;
+    // eventId: string;
     payload: Record<string, unknown>;
 }
 
@@ -31,14 +31,14 @@ export interface RetryableEvent extends BaseNotificationEvent {
 /**
  * Retry event.
  */
-export interface RetryEvent extends RetryableEvent {}
+export interface RetryEvent extends RetryableEvent { }
 
 /**
  * Dead Letter Queue event.
  */
-export interface DLQEvent extends RetryableEvent {}
+export interface DLQEvent extends RetryableEvent { }
 
 /**
  * Event used by the ingestion service for fan-out.
  */
-export interface FanOutEvent extends BaseNotificationEvent {}
+export interface FanOutEvent extends BaseNotificationEvent { }
