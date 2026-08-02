@@ -11,6 +11,8 @@ export async function publishNotificationCreatedEvent(event: NotificationCreated
     await redis.xadd(
         "notification-stream",
         "*",
+        "correlationId",
+        event.correlationId,
         "event",
         "notification.created",
         "notificationId",
@@ -23,6 +25,7 @@ export async function publishNotificationCreatedEvent(event: NotificationCreated
 
     logger.info(
         {
+            correlationId: event.correlationId,
             notificationId: event.notificationId,
             userId: event.userId,
             eventType: event.eventType,

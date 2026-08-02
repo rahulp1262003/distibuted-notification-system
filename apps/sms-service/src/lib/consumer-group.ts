@@ -1,5 +1,6 @@
 import { redis } from "./redis";
 import { createConsumerGroup as createGroup } from "@repo/core";
+import {logger} from "./logger";
 /**
  * Creates the SMS Service consumer group if it does not already exist.
  */
@@ -12,9 +13,9 @@ export async function createConsumerGroup(): Promise<void> {
     );
 
     if (created) {
-        console.log("SMS Consumer Group Created");
+        logger.info("SMS Consumer Group Created");
     } else {
-        console.log("SMS Consumer Group Already Exists");
+        logger.warn("SMS Consumer Group Already Exists");
     }
 
 }

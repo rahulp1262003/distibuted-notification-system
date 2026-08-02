@@ -4,7 +4,7 @@ import { z } from "zod";
  * Environment variables required by SMS Service.
  */
 const envSchema = z.object({
-    PORT: z.coerce.number().default(3002),
+    PORT: z.coerce.number().default(3005),
     
     REDIS_HOST: z
         .string()

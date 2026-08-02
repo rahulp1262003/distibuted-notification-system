@@ -12,15 +12,28 @@ export async function processNotificationEvent(
         notificationId: string;
         userId: string;
         eventType: string;
+        correlationId: string;
     }
 ): Promise<void> {
 
-    logger.info(`Notification Event Received : ${JSON.stringify(event)}`);
+    logger.info(
+        {
+            correlationId: event.correlationId,
+            notificationId: event.notificationId,
+            userId: event.userId,
+            eventType: event.eventType,
+        },
+        "Notification event received"
+    );
 
     await publishFanOutEvents(event);
 
     logger.info(
-        `[INGESTION] Fan-out completed for ${event.notificationId}`
+        {
+            correlationId: event.correlationId,
+            notificationId: event.notificationId,
+        },
+        "Fan-out completed"
     );
 
 }

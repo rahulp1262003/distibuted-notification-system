@@ -12,7 +12,7 @@ export class FakeEmailProvider implements EmailProvider {
     async send(message: EmailMessage): Promise<void> {
 
         logger.info("Email Sent");
-        logger.info(JSON.stringify(message));
+        logger.info(message);
 
     }
 

@@ -1,4 +1,5 @@
-import { Prisma } from "@prisma/client";
+import { randomUUID } from "crypto";
+import { CreateNotificationDto } from "../types/notification";
 
 import { publishNotificationCreatedEvent } from "../events/publisher";
 import { NotificationRepository } from "../repositories/notification.repository";
@@ -36,11 +37,10 @@ export class NotificationService {
      * @param data Notification creation payload.
      * @returns Created notification record.
      */
-    async createNotification(data: {
-        userId: string;
-        eventType: string;
-        payload: Prisma.InputJsonValue;
-    }) {
+    async createNotification(
+        data: CreateNotificationDto) {
+
+        const correlationId = randomUUID();
 
         // Persist notification in the database.
         const notification =
@@ -48,6 +48,7 @@ export class NotificationService {
 
         // Publish the notification created event.
         await publishNotificationCreatedEvent({
+            correlationId,
             notificationId: notification.id,
             userId: notification.userId,
             eventType: notification.eventType,
@@ -56,6 +57,7 @@ export class NotificationService {
 
         logger.info(
             {
+                correlationId,
                 notificationId: notification.id,
                 userId: notification.userId,
                 eventType: notification.eventType,

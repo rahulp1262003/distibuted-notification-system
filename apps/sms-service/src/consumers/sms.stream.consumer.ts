@@ -1,10 +1,11 @@
-import { FakeSMSProvider } from "../providers/fake-sms.provider";
-import { processSMSEvent } from "./sms.consumer";
-import { readSmsStream, ackSmsMessage } from "../lib/stream";
-import { publishRetryEvent } from "../events/retry.publisher";
-import { canRetry } from "../utils/retry";
-import { publishDLQEvent } from "../events/dlq.publisher";
-import { getNextRetryCount } from "../utils/retry";
+import {FakeSMSProvider} from "../providers/fake-sms.provider";
+import {processSMSEvent} from "./sms.consumer";
+import {readSmsStream, ackSmsMessage} from "../lib/stream";
+import {publishRetryEvent} from "../events/retry.publisher";
+import {canRetry} from "../utils/retry";
+import {publishDLQEvent} from "../events/dlq.publisher";
+import {getNextRetryCount} from "../utils/retry";
+import {logger} from "../lib/logger";
 
 const provider = new FakeSMSProvider();
 
@@ -26,20 +27,28 @@ export async function pollOnce(): Promise<void> {
     const [, messages] = response[0] as any;
 
     for (const [messageId, values] of messages) {
+        const fields = Object.fromEntries(
+            Array.from({length: values.length / 2}, (_, i) => [
+                values[i * 2],
+                values[i * 2 + 1],
+            ])
+        );
 
         const event = {
-            notificationId: values[3],
-            userId: values[5],
-            eventType: values[7],
-            retryCount: values[9] ? Number(values[9]) : 0,
+            correlationId: fields.correlationId,
+            notificationId: fields.notificationId,
+            userId: fields.userId,
+            eventType: fields.eventType,
+            retryCount: Number(fields.retryCount ?? 0),
         };
 
         try {
 
             await processSMSEvent(provider, {
-                notificationId: values[3],
-                userId: values[5],
-                eventType: values[7],
+                correlationId: fields.correlationId,
+                notificationId: fields.notificationId,
+                userId: fields.userId,
+                eventType: fields.eventType,
             });
 
         } catch (error) {
@@ -49,9 +58,10 @@ export async function pollOnce(): Promise<void> {
             if (canRetry(retryCount)) {
 
                 await publishRetryEvent({
-                    notificationId: event.notificationId,
-                    userId: event.userId,
-                    eventType: event.eventType,
+                    correlationId: fields.correlationId,
+                    notificationId: fields.notificationId,
+                    userId: fields.userId,
+                    eventType: fields.eventType,
                     channel: "SMS",
                     retryCount,
                 });
@@ -59,9 +69,10 @@ export async function pollOnce(): Promise<void> {
             } else {
 
                 await publishDLQEvent({
-                    notificationId: event.notificationId,
-                    userId: event.userId,
-                    eventType: event.eventType,
+                    correlationId: fields.correlationId,
+                    notificationId: fields.notificationId,
+                    userId: fields.userId,
+                    eventType: fields.eventType,
                     channel: "SMS",
                     retryCount,
                 });
@@ -87,7 +98,7 @@ export async function pollOnce(): Promise<void> {
  */
 export async function startSMSConsumer(): Promise<void> {
 
-    console.log("[SMS] Consumer Started");
+    logger.info("[SMS] Consumer Started");
 
     while (true) {
         await pollOnce();

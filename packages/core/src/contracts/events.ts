@@ -1,7 +1,14 @@
 /**
+ * Base metadata shared by all events.
+ */
+export interface BaseEventMetadata {
+    correlationId: string;
+}
+
+/**
  * Base event shared by all notification events.
  */
-export interface BaseNotificationEvent {
+export interface BaseNotificationEvent extends BaseEventMetadata {
     notificationId: string;
     userId: string;
     eventType: string;

@@ -25,10 +25,20 @@ export async function pollOnce(): Promise<void> {
 
     for (const [messageId, values] of messages) {
 
+        const fields = Object.fromEntries(
+            Array.from({ length: values.length / 2 }, (_, i) => [
+                values[i * 2],
+                values[i * 2 + 1],
+            ])
+        );
+
+        logger.info(fields);
+
         const event = {
-            notificationId: values[3],
-            userId: values[5],
-            eventType: values[7],
+            correlationId: fields.correlationId,
+            notificationId: fields.notificationId,
+            userId: fields.userId,
+            eventType: fields.eventType,
         };
 
         await processNotificationEvent(event);
